@@ -57,11 +57,24 @@ function ListSelectionFooter() {
   );
 }
 
+function getLists() {
+  const url = 'http://localhost:8000/api/lists/?timestamp=' + (Math.floor(Date.now() / 1000));
+
+  const rv = [];
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      for (let i=0; i<data.retrieve.length; ++i) {
+        rv[i] = data.retrieve[i].name;
+      }
+    })
+    .catch(error => alert("Error: " + error));
+
+    return rv;
+}
+
 function ListSelectionForm() {
-  let items = [];
-  for (let i=0; i<5; i++) {
-    items.push("List " + (i+1));
-  }
+  let items = getLists();
 
   return (
     <>
@@ -141,9 +154,6 @@ function TasksFooter() {
 
 function TasksForm(props) {
   let items = [];
-  for (let i=0; i<5; i++) {
-    items.push("Task " + (i+1));
-  }
 
   return (
     <>
