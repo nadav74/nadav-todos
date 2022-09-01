@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 
 function ListSelectionHeader() {
@@ -12,6 +12,7 @@ function ListSelectionHeader() {
 
 function ListSelectionItem(props: any) {
   const onItemOpenClick = () => {
+    // This needs to go!
     root.render(<TasksForm id={props.id}/>)
   }
 
@@ -57,24 +58,47 @@ function ListSelectionFooter() {
   );
 }
 
-function getLists(): string[] {
-  const url: string = 'http://localhost:8000/api/lists/?timestamp=' + (Math.floor(Date.now() / 1000));
+function useGetList() {
+  const [items, setItems] = useState([]);
 
-  const rv: string[] = [];
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      for (let i=0; i<data.retrieve.length; ++i) {
-        rv[i] = data.retrieve[i].name;
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const url: string = 'http://localhost:8000/api/lists/?timestamp=' + (Math.floor(Date.now() / 1000));
+        const response = await fetch(url);
+        const data = await response.json();
+        const rv: any = [];
+        for (let i=0; i<data.retrieve.length; ++i) {
+          rv[i] = data.retrieve[i].name;
+        }
+        setItems(rv);
       }
-    })
-    .catch(error => alert("Error: " + error));
+      catch (error) {
+        alert("Error: " + error);
+      }
+    };
 
-    return rv;
+    fetchItems();
+
+  /*
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const rv: any = [];
+        for (let i=0; i<data.retrieve.length; ++i) {
+          rv[i] = data.retrieve[i].name;
+        }
+        setItems(rv);
+      })
+      .catch(error => alert("Error: " + error));
+      */
+  }, [items]);
+
+  return items;
 }
 
 function ListSelectionForm() {
-  let items: string[] = getLists();
+  const items = useGetList();
 
   return (
     <>
